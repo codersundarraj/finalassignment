@@ -19,11 +19,12 @@ export class NotesComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    console.log(this.notesList);
+    
   }
 
   updateNote(data){
     this.update.emit(data);
+    this.isView = false;
   }
 
   deleteNote(id){
