@@ -11,9 +11,9 @@
                         </a>
                     </div>
                     <div class="p-l-r-5 pointer">
-                        <button class="normal-button" [disabled]="!selectedNote">
+                        <button class="normal-button" [disabled]="!selectedNote" (click)="deleteNote(selectedNote.id)">
                             <i class="fa fa-trash" aria-hidden="true" title="Delete selected"
-                                (click)="deleteNote(selectedNote.id)"></i>
+                                ></i>
                         </button>
                     </div>
                     <div class="p-l-r-5 pointer">
