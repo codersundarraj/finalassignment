@@ -33,26 +33,28 @@ export class HomeComponent implements OnInit {
   loadFolders(){
     this.folders = [];
     this.notesList = [];
-    this.selectedNote = null;
-    if(this.parentFolderId){
-      this.folders = this.jsonData.folder.filter(item => item.parent == this.parentFolderId);
-    } else{
-      this.folders = this.jsonData.folder.filter(item => item.parent == null);
-    }
-    
-    if(this.folders){
-      this.jsonData.folder.sort((a,b) => {
-        let nameA = a.name;
-        let nameB = b.name;
-        if(nameA < nameB)
-          return -1;
-        if (nameA > nameB)
-          return 1;
-        return 0;
-      });
-    } else{
-      this.folders = [];
-    }
+      this.selectedNote = null;
+      if (this.jsonData && this.jsonData.folder) {
+          if (this.parentFolderId) {
+              this.folders = this.jsonData.folder.filter(item => item.parent == this.parentFolderId);
+          } else {
+              this.folders = this.jsonData.folder.filter(item => item.parent == null);
+          }
+
+          if (this.folders) {
+              this.jsonData.folder.sort((a, b) => {
+                  let nameA = a.name;
+                  let nameB = b.name;
+                  if (nameA < nameB)
+                      return -1;
+                  if (nameA > nameB)
+                      return 1;
+                  return 0;
+              });
+          } else {
+              this.folders = [];
+          }
+      }
     this.loadNotes();
   }
 
@@ -94,8 +96,13 @@ export class HomeComponent implements OnInit {
       type : "folder",
       parent : this.parentFolderId
     }
-    this.folders.push(newFolder);
-    this.jsonData.folder.push(newFolder);
+      if (this.jsonData && this.jsonData.file && this.jsonData.file.length > 0) {
+          this.jsonData.folder.push(newFolder);
+      } else {
+          let list = { "folder": [], "file": [] }
+          list.folder.push(newFolder);
+          this.jsonData = list;
+      }
     this.dataService.addData(this.jsonData).subscribe(res => {
       this.jsonData = res;
       this.loadFolders();
@@ -117,20 +124,20 @@ export class HomeComponent implements OnInit {
   loadNotes(){
     this.isView = false;
     this.notesList = [];
-    this.selectedNote = null;
-    this.notesList = this.jsonData.file.filter(item => item.parentID == this.parentFolderId);
-    if(this.notesList){
-      this.notesList.sort(function(a, b) {
-        var dateA = new Date(a.date).getTime(); 
-        var dateB = new Date(b.date).getTime(); 
-        return dateA < dateB ? 1 : -1;  
-      });
-    } else{
-      this.notesList = [];
+      this.selectedNote = null;
+      if (this.jsonData && this.jsonData.file) {
+        this.notesList = this.jsonData.file.filter(item => item.parentID == this.parentFolderId);
+        if(this.notesList){
+          this.notesList.sort(function(a, b) {
+            var dateA = new Date(a.date).getTime(); 
+            var dateB = new Date(b.date).getTime(); 
+            return dateA < dateB ? 1 : -1;  
+          });
+        } else{
+          this.notesList = [];
+        }
     }
-  }
-
-  
+  }  
 
   //update particular notes 
   updateNote(data){
@@ -165,8 +172,13 @@ export class HomeComponent implements OnInit {
         date: new Date().toString(),
         parentID : this.parentFolderId
       }
-
-      this.jsonData.file.unshift(newNotes);
+        if (this.jsonData && this.jsonData.file && this.jsonData.file.length > 0) {
+            this.jsonData.file.unshift(newNotes);
+        } else {
+            var file = []
+            file.push(newNotes);
+            this.jsonData.file = file;
+        }        
       this.selectedNote = newNotes;
       this.isView = true;
 
@@ -193,7 +205,6 @@ export class HomeComponent implements OnInit {
   deleteNote(id){
     let ind = this.jsonData.file.findIndex(item => item.id == id);
     this.jsonData.file.splice(ind,1);
-    console.log(this.jsonData);
     this.dataService.updateData(this.jsonData).subscribe(res => {
       this.jsonData = res;
       this.notesList = this.jsonData.file.filter(item => item.parentID == this.parentFolderId);
@@ -214,7 +225,9 @@ export class HomeComponent implements OnInit {
   //search notes
   searchTerm(val) {
     this.notesList = [];
-    this.notesList = this.jsonData.file.filter(item => item.title.toLowerCase().indexOf(val.toLowerCase()) != -1 || item.description.toLowerCase().indexOf(val.toLowerCase()) != -1);
+    if (this.jsonData && this.jsonData.file) {
+        this.notesList = this.jsonData.file.filter(item => item.title.toLowerCase().indexOf(val.toLowerCase()) != -1 || item.description.toLowerCase().indexOf(val.toLowerCase()) != -1);
+     }
   }
 
 
